@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { SettingsDAL } from '../dal/settings.dal';
 import { Settings } from '../entity/settings';
 
@@ -26,7 +26,7 @@ const isValidBody = (body: unknown): body is ValidBody => {
 
 export const createPostSettingsController =
   ({ settingsDAL }: { settingsDAL: SettingsDAL }) =>
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     if (!isValidBody(req.body)) {
       res.status(400).json({ message: 'Invalid settings' });
       return;
@@ -39,6 +39,10 @@ export const createPostSettingsController =
       updatedAt: new Date(),
     };
 
-    const saved = await settingsDAL.upsertSettings(settings);
-    res.json(saved);
+    try {
+      const saved = await settingsDAL.upsertSettings(settings);
+      res.json(saved);
+    } catch (error) {
+      next(error);
+    }
   };

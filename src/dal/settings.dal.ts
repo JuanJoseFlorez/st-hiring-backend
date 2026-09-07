@@ -15,8 +15,12 @@ export const createSettingsDAL = (db: Db): SettingsDAL => {
     async getSettings(): Promise<Settings | null> {
       const doc = await collection.findOne({ _id: SETTINGS_ID });
       if (!doc) return null;
-      const { _id, ...settings } = doc;
-      return settings;
+      return {
+        siteName: doc.siteName,
+        supportEmail: doc.supportEmail,
+        maxTicketsPerOrder: doc.maxTicketsPerOrder,
+        updatedAt: doc.updatedAt,
+      };
     },
     async upsertSettings(settings: Settings): Promise<Settings> {
       await collection.replaceOne(

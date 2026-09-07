@@ -46,6 +46,28 @@ describe('createSettingsDAL', () => {
         updatedAt: stored.updatedAt,
       });
     });
+
+    it('ignores unexpected fields stored in the document', async () => {
+      const stored = {
+        _id: 'settings',
+        siteName: 'Acme',
+        supportEmail: 'a@b.com',
+        maxTicketsPerOrder: 4,
+        updatedAt: new Date('2024-01-01'),
+        legacyField: 'should not leak',
+      };
+      const collectionMock = { findOne: jest.fn().mockResolvedValue(stored) };
+      const dal = createSettingsDAL(buildDb(collectionMock) as any);
+
+      const result = await dal.getSettings();
+
+      expect(result).toEqual({
+        siteName: 'Acme',
+        supportEmail: 'a@b.com',
+        maxTicketsPerOrder: 4,
+        updatedAt: stored.updatedAt,
+      });
+    });
   });
 
   describe('upsertSettings', () => {

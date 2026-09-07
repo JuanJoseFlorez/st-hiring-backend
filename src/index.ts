@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import { knex } from 'knex';
 import dbConfig from './knexfile';
@@ -42,6 +42,11 @@ const main = async () => {
 
   app.use('/', (_req, res) => {
     res.json({ message: 'Hello API' });
+  });
+
+  app.use((error: Error, _req: Request, res: Response, _next: NextFunction) => {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
   });
 
   app.listen(3000, () => {
